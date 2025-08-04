@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic 8-Ball</title>
+    <style>
+        body {
+            font-family: 'Trebuchet MS', sans-serif;
+            font-size: 1.5em;
+            text-align: center;
+            background: radial-gradient(circle, #333, rgb(0, 128, 90), #1a0033);
+            color: white;
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            margin-bottom: 10px;
+            margin-top: -10px;
+        }
+        .crystal-ball {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(167, 185, 61, 0.8), rgba(24, 179, 120, 0.848), rgba(0, 0, 0, 0.8));
+            box-shadow: 0 0 50px rgba(49, 226, 43, 0.923), inset 0 0 50px rgba(255, 255, 255, 0.1);
+            margin: 20px auto;
+        }
+
+        p {
+            margin: 15px 0;
+            max-width: 600px;
+        }
+
+        .warning {
+            color: #ffaa00;
+            font-style: italic;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+        }
+
+        input {
+            background-color: rgba(51, 51, 51, 0.7);
+            color: white;
+            border: 2px solid rgba(43, 226, 128, 0.5);
+            border-radius: 15px;
+            padding: 10px 13px;
+            
+            font-size: 25px;
+            width: 80%;
+            max-width: 500px;
+            margin: 20px 0;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: rgb(43, 226, 198);
+            box-shadow: 0 0 20px rgba(43, 174, 226, 0.4);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        button {
+            background: linear-gradient(45deg, rgb(0, 149, 151), rgb(8, 184, 67));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 25px;
+            margin-top: -10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            
+        }
+
+        button:hover {
+            box-shadow: 0 6px 20px rgba(99, 203, 228, 0.975);
+        }
+
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #1a0033, #1a4a3f);
+            border: 2px solid #00ff99;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 80%;
+            max-height: 80%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 170, 0, 0.3);
+        }
+
+        .result-box h2 {
+            color: #697be0;
+            margin-bottom: 15px;
+        }
+
+        .result-box .question {
+            font-style: italic;
+            color: #ccc;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .result-box .answer {
+            color: #00c3ff;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(0, 255, 247, 0.5);
+        }
+
+        .close-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .close-btn:hover {
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            body { font-size: 1.2em; padding: 10px; }
+            h1 { font-size: 2.5em; }
+            input { width: 90%; }
+            .crystal-ball { width: 120px; height: 120px; }
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>🎱 Magic 8-Ball 🎱</h1>
+    <div class="crystal-ball"></div>
+    <p>Need some faith? Ask the Magic 8-Ball to decide!</p>
+    
+
+    <input id="questionInput" type="text" placeholder="Ask anything here.." />
+    <br>
+    <button onclick="getAnswers()">Decide!</button>
+
+    <div id="resultOverlay" class="result-overlay">
+        <div class="result-box">
+            <h2>Your Question:</h2>
+            <div id="displayQuestion" class="question"></div>
+            <h2>Magic 8-Ball:</h2>
+            <div id="displayAnswer" class="answer"></div>
+            <button class="close-btn" onclick="closeResult()">Decide More</button>
+        </div>
+    </div>
+
+    <script>
+        const answers = [
+            "Did you really think so? Hahaha, I'm laughing now at your pitiful chances.",
+            "Yeah, it has a 65% chance of happening.",
+            "Oh come on! No way!",
+            
+            
+            "Give me a break, give me a break, break me off a piece of that NO!",
+            
+            
+            "Do you know where the 8-Ball works? There's your answer.",
+            "As the sun is hot, your answer is YES.",
+            "Did you get drunk last weekend? There's your answer.",
+            
+            "Yeah, it could happen. 80% chance.",
+            
+            
+            "Who said ambiguous answers were bad? Not me, so YES!",
+            "You think I'm going to answer that after a day of hard work? Ask again later.",
+            "If you own a pet, yes. Otherwise, no.",
+            "The sun will rise in the east and set in the west. Thank you Captain Obvious. YES!",
+            "I'm laughing hard, very hard. You'd better ask again.",
+            "The stars have aligned... and they're laughing at you. NO.",
+            
+            
+            
+        ];
+
+        function getAnswers() {
+            const question = document.getElementById("questionInput").value.trim();
+
+            if (question === "") {
+                alert("You dummy! You didn't enter anything into the Crystal Ball!!!");
+                return;
+            }
+
+            // Use a more random approach
+            const randomIndex = Math.floor(Math.random() * answers.length);
+            const answer = answers[randomIndex];
+
+            // Display result in overlay instead of popup
+            document.getElementById("displayQuestion").textContent = `"${question}"`;
+            document.getElementById("displayAnswer").textContent = answer;
+            document.getElementById("resultOverlay").style.display = "flex";
+            
+            // Clear the input for next question
+            document.getElementById("questionInput").value = "";
+        }
+
+        function closeResult() {
+            document.getElementById("resultOverlay").style.display = "none";
+            document.getElementById("questionInput").focus();
+        }
+
+        // Add Enter key support
+        document.getElementById("questionInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                getAnswers();
+            }
+        });
+
+        // Close overlay when clicking outside the result box
+        document.getElementById("resultOverlay").addEventListener("click", function(event) {
+            if (event.target === this) {
+                closeResult();
+            }
+        });
+
+        // Focus input on page load
+        window.addEventListener("load", function() {
+            document.getElementById("questionInput").focus();
+        });
+    </script>
+</body>
+</html>
